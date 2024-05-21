@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Upload Image</h2>
+
+<form action="http://localhost:5000/upload_file" method="post" enctype="multipart/form-data">
+    <input type="file" name="img" id="img">
+    <input type="submit" value="Upload Image" name="submit">
+</form>
+
+<img id="result" src=""/>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(event.target);
+    fetch('http://localhost:5000/upload_file', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('result').src = 'data:image/jpeg;base64,' + data;
+    });
+});
+</script>
+
+</body>
+</html>
