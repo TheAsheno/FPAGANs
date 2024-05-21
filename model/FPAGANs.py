@@ -47,21 +47,21 @@ class Generator(nn.Module):
         self.bn3 = nn.BatchNorm2d(128, eps=0.001, track_running_stats=True)
         self.bn4 = nn.BatchNorm2d(64, eps=0.001, track_running_stats=True)
         self.bn5 = nn.BatchNorm2d(32, eps=0.001, track_running_stats=True)
-        self.repeat_blocks=self._make_repeat_blocks(BasicBlock(128,128),6)
+        self.repeat_blocks = self._make_repeat_blocks(BasicBlock(128, 128), 6)
         self.deconv1 = nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1)
         self.deconv2 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=0,output_padding=1)
-        self.relu=nn.ReLU()
-        self.tanh=nn.Tanh()
+        self.relu = nn.ReLU()
+        self.tanh = nn.Tanh()
 
-    def _make_repeat_blocks(self,block,repeat_times):
+    def _make_repeat_blocks(self, block, repeat_times):
         layers=[]
         for i in range(repeat_times):
             layers.append(block)
         return nn.Sequential(*layers)
 
-    def forward(self, x,condition=None):
+    def forward(self, x, condition=None):
         if condition is not None:
-            x=torch.cat((x,condition),1)
+            x = torch.cat((x, condition), 1)
 
         x = self.relu(self.bn1(self.conv1(x)))
         x = self.relu(self.bn2(self.conv2(x)))

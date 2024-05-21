@@ -6,7 +6,7 @@ import torch
 from torch.nn.parameter import Parameter
 from torch.nn.functional import pad
 from torch.nn.modules import Module
-from torch.nn.modules.utils import _single, _pair, _triple
+from torch.nn.modules.utils import _pair
 
 class _ConvNd(Module):
 
@@ -79,7 +79,6 @@ class Conv2d(_ConvNd):
         return _conv2d_same_padding(input, self.weight, self.bias, self.stride,
                         self.padding, self.dilation, self.groups)
 
-# custom conv2d, because pytorch don't have "padding='same'" option.
 def _conv2d_same_padding(input, weight, bias=None, stride=(1,1), padding=1, dilation=(1,1), groups=1):
 
     input_rows = input.size(2)
@@ -110,6 +109,6 @@ def load_params(model, path):
     model.load_state_dict(model_dict)
 
 if __name__=="__main__":
-    tensor=torch.ones((1,8,128,128))
-    conv2d=Conv2d(8, 32, kernel_size=3, stride=2)
+    tensor = torch.ones((1, 8, 128, 128))
+    conv2d = Conv2d(8, 32, kernel_size=3, stride=2)
     print(conv2d(tensor).size())
