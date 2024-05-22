@@ -77,11 +77,11 @@ class CACD(data.Dataset):
                 items = l.split()
                 self.source_images.append(os.path.join(data_root, items[0]))
 
-        self.train_group_pointer=[0,0,0,0,0]
-        self.source_pointer=0
-        self.batch_size=32
-        self.transforms=transforms
-        self.label_transforms=label_transforms
+        self.train_group_pointer = [0,0,0,0,0]
+        self.source_pointer = 0
+        self.batch_size = 32
+        self.transforms = transforms
+        self.label_transforms = label_transforms
 
     def __getitem__(self, idx):
         if self.split == "train":
