@@ -24,10 +24,10 @@ class Demo:
         minSize = 20
         imgSize = [120, 100]
         detector = MTCNN(steps_threshold=threshold, scale_factor=factor, min_face_size=minSize)
-        keypoint_list=['left_eye','right_eye','nose','mouth_left','mouth_right']
+        keypoint_list = ['left_eye','right_eye','nose','mouth_left','mouth_right']
 
 
-        npimage=np.array(image)
+        npimage = np.array(image)
         dictface_list = detector.detect_faces(npimage)  # if more than one face is detected, [0] means choose the first face
 
         if len(dictface_list) > 1:
@@ -60,7 +60,7 @@ class Demo:
 
 
     def demo(self, image, target=4):
-        image=self.mtcnn_align(image)
+        image = self.mtcnn_align(image)
 
         transforms = torchvision.transforms.Compose([
             torchvision.transforms.Resize((128,128)),
@@ -70,17 +70,17 @@ class Demo:
         label_transforms = torchvision.transforms.Compose([
             torchvision.transforms.ToTensor(),
         ])
-        image=transforms(image).unsqueeze(0)
+        image = transforms(image).unsqueeze(0)
         full_one = np.ones((128, 128), dtype=np.float32)
         full_zero = np.zeros((128, 128, 5), dtype=np.float32)
         full_zero[:, :, target] = full_one
-        label=label_transforms(full_zero).unsqueeze(0)
+        label = label_transforms(full_zero).unsqueeze(0)
 
-        img=image.cuda()
-        lbl=label.cuda()
+        img = image.cuda()
+        lbl = label.cuda()
         self.model.generator.cuda()
 
-        res=self.model.test_generate(img,lbl)
+        res = self.model.test_generate(img,lbl)
 
         res = Reverse_zero_center()(res)
         res_img = res.squeeze(0).cpu().numpy().transpose(1,2,0)
