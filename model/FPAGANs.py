@@ -28,7 +28,7 @@ class PatchDiscriminator(nn.Module):
 
     def forward(self, x,condition):
         x = self.lrelu(self.conv1(x))
-        x=torch.cat((x,condition),1)
+        x = torch.cat((x, condition), 1)
         x = self.lrelu(self.bn2(self.conv2(x)))
         x = self.lrelu(self.bn3(self.conv3(x)))
         x = self.lrelu(self.bn4(self.conv4(x)))
@@ -62,7 +62,6 @@ class Generator(nn.Module):
     def forward(self, x, condition=None):
         if condition is not None:
             x = torch.cat((x, condition), 1)
-
         x = self.relu(self.bn1(self.conv1(x)))
         x = self.relu(self.bn2(self.conv2(x)))
         x = self.relu(self.bn3(self.conv3(x)))
@@ -82,7 +81,7 @@ class FPAGANs:
         self.generator = Generator().cuda()
         self.discriminator = PatchDiscriminator().cuda()
         if age_classifier_path is not None:
-            self.age_classifier=AgeAlexNet(modelpath=age_classifier_path).cuda()
+            self.age_classifier = AgeAlexNet(modelpath=age_classifier_path).cuda()
         else:
             self.age_classifier = AgeAlexNet().cuda()
         self.MSEloss = nn.MSELoss().cuda()
@@ -105,7 +104,7 @@ class FPAGANs:
     def test_generate(self, source_img_128, condition):
         self.generator.eval()
         with torch.no_grad():
-            generate_image=self.generator(source_img_128, condition)
+            generate_image = self.generator(source_img_128, condition)
         return generate_image
 
     def train(self,source_img_227,source_img_128,true_label_img,true_label_128,true_label_64,\
@@ -133,14 +132,14 @@ class FPAGANs:
         ################################feature_loss#############################
 
         self.age_classifier(source_img_227)
-        source_feature=self.age_classifier.conv5_feature
+        source_feature = self.age_classifier.conv5_feature
 
         generate_img_227 = F.interpolate(self.g_source, (227, 227), mode="bilinear", align_corners=True)
         generate_img_227 = Img_to_zero_center()(generate_img_227)
 
         self.age_classifier(generate_img_227)
-        generate_feature =self.age_classifier.conv5_feature
-        self.feature_loss=self.MSEloss(source_feature,generate_feature)
+        generate_feature = self.age_classifier.conv5_feature
+        self.feature_loss = self.MSEloss(source_feature, generate_feature)
 
         ################################age_cls_loss##############################
 

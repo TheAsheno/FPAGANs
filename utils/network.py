@@ -64,7 +64,6 @@ class _ConvNd(Module):
         return s.format(name=self.__class__.__name__, **self.__dict__)
 
 class Conv2d(_ConvNd):
-
     def __init__(self, in_channels, out_channels, kernel_size, stride=1,
                  padding=0, dilation=1, groups=1, bias=True):
         kernel_size = _pair(kernel_size)
@@ -80,26 +79,16 @@ class Conv2d(_ConvNd):
                         self.padding, self.dilation, self.groups)
 
 def _conv2d_same_padding(input, weight, bias=None, stride=(1,1), padding=1, dilation=(1,1), groups=1):
-
-    input_rows = input.size(2)
-    filter_rows = weight.size(2)
-    effective_filter_size_rows = (filter_rows - 1) * dilation[0] + 1
-    out_rows = (input_rows + stride[0] - 1) // stride[0]
-    padding_needed = max(0, (out_rows - 1) * stride[0] + effective_filter_size_rows -
-                  input_rows)
-    padding_rows = max(0, (out_rows - 1) * stride[0] +
-                        (filter_rows - 1) * dilation[0] + 1 - input_rows)
-    rows_odd = (padding_rows % 2 != 0)
-    padding_cols = max(0, (out_rows - 1) * stride[0] +
-                        (filter_rows - 1) * dilation[0] + 1 - input_rows)
-    cols_odd = (padding_rows % 2 != 0)
-
-    if rows_odd or cols_odd:
-        input = pad(input, [0, int(cols_odd), 0, int(rows_odd)])
-
-    return F.conv2d(input, weight, bias, stride,
-                  padding=(padding_rows // 2, padding_cols // 2),
-                  dilation=dilation, groups=groups)
+    input_size = input.size(2)
+    filter_size = weight.size(2)
+    out_size = (input_size + stride[0] - 1) // stride[0]
+    padding_size = max(0, (out_size - 1) * stride[0] + (filter_size - 1) * dilation[0] + 1 - input_size)
+    input_odd = (padding_size % 2 != 0)
+    padding_size //= 2
+    padding = _pair(padding_size)
+    if input_odd:
+        input = pad(input, [0, int(input_odd), 0, int(input_odd)])
+    return F.conv2d(input, weight, bias, stride, padding, dilation, groups)
 
 def load_params(model, path):
     pretrained_dict = torch.load(path)
@@ -110,5 +99,5 @@ def load_params(model, path):
 
 if __name__=="__main__":
     tensor = torch.ones((1, 8, 128, 128))
-    conv2d = Conv2d(8, 32, kernel_size=3, stride=2)
+    conv2d = Conv2d(8, 32, kernel_size=3, stride=1)
     print(conv2d(tensor).size())

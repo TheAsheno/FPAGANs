@@ -46,10 +46,10 @@ class AgeAlexNet(nn.Module):
         if modelpath is not None:
             load_params(self, modelpath)
 
-        self.Conv3_feature_module=nn.Sequential()
-        self.Conv4_feature_module=nn.Sequential()
-        self.Conv5_feature_module=nn.Sequential()
-        self.Pool5_feature_module=nn.Sequential()
+        self.Conv3_feature_module = nn.Sequential()
+        self.Conv4_feature_module = nn.Sequential()
+        self.Conv5_feature_module = nn.Sequential()
+        self.Pool5_feature_module = nn.Sequential()
         for x in range(10):
             self.Conv3_feature_module.add_module(str(x), self.features[x])
         for x in range(10,12):
@@ -60,11 +60,11 @@ class AgeAlexNet(nn.Module):
             self.Pool5_feature_module.add_module(str(x),self.features[x])
 
     def forward(self, x):
-        self.conv3_feature=self.Conv3_feature_module(x)
-        self.conv4_feature=self.Conv4_feature_module(self.conv3_feature)
-        self.conv5_feature=self.Conv5_feature_module(self.conv4_feature)
-        pool5_feature=self.Pool5_feature_module(self.conv5_feature)
-        self.pool5_feature=pool5_feature
+        self.conv3_feature = self.Conv3_feature_module(x)
+        self.conv4_feature = self.Conv4_feature_module(self.conv3_feature)
+        self.conv5_feature = self.Conv5_feature_module(self.conv4_feature)
+        pool5_feature = self.Pool5_feature_module(self.conv5_feature)
+        self.pool5_feature = pool5_feature
         flattened = pool5_feature.view(pool5_feature.size(0), -1)
         return self.age_classifier(flattened)
 
@@ -78,9 +78,9 @@ if __name__ == '__main__':
         Img_to_zero_center()
     ])
     model = AgeAlexNet(modelpath='checkpoint\\AgeClassify\\saved_parameters\\epoch_20_iter_0.pth').cuda()
-    img = Image.open("dataset\\CACD2000\\image\\expriment\\44_Maura_Tierney_0010.jpg")
+    img = Image.open("dataset\\CACD2000\\image\\expriment\\30_Natalie_Portman_0015.jpg")
     img = transforms(img).unsqueeze(0)
-    label = torch.tensor([3])
+    label = torch.tensor([2])
     model.eval()
     with torch.no_grad():
         img = img.cuda()
