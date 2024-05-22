@@ -59,7 +59,7 @@ class Demo:
         return Image.fromarray(warped.astype(np.uint8))
 
 
-    def demo(self,image,target=4):
+    def demo(self, image, target=4):
         image=self.mtcnn_align(image)
 
         transforms = torchvision.transforms.Compose([
