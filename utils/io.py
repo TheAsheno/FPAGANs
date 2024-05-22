@@ -1,6 +1,4 @@
 import os
-from PIL import Image
-import numpy as np
 
 def check_dir(dir):
     if not os.path.exists(dir):
