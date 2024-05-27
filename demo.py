@@ -6,6 +6,9 @@ from PIL import Image
 import numpy as np
 import cv2
 from skimage import transform as trans
+from torchvision.utils import save_image
+import os
+import torch
 
 class Demo:
     def __init__(self, generator_state_pth):
@@ -59,9 +62,8 @@ class Demo:
         return Image.fromarray(warped.astype(np.uint8))
 
 
-    def demo(self, image, target=4):
+    def demo(self, image):
         image = self.mtcnn_align(image)
-
         transforms = torchvision.transforms.Compose([
             torchvision.transforms.Resize((128,128)),
             torchvision.transforms.ToTensor(),
@@ -71,23 +73,22 @@ class Demo:
             torchvision.transforms.ToTensor(),
         ])
         image = transforms(image).unsqueeze(0)
-        full_one = np.ones((128, 128), dtype=np.float32)
-        full_zero = np.zeros((128, 128, 5), dtype=np.float32)
-        full_zero[:, :, target] = full_one
-        label = label_transforms(full_zero).unsqueeze(0)
+        imgs = image.cuda()
+        for age in range(5):
+            full_one = np.ones((128, 128), dtype=np.float32)
+            full_zero = np.zeros((128, 128, 5), dtype=np.float32)
+            full_zero[:, :, age] = full_one
+            label = label_transforms(full_zero).unsqueeze(0)
 
-        img = image.cuda()
-        lbl = label.cuda()
-        self.model.generator.cuda()
+            img = image.cuda()
+            lbl = label.cuda()
+            self.model.generator.cuda()
 
-        res = self.model.test_generate(img,lbl)
-
-        res = Reverse_zero_center()(res)
-        res_img = res.squeeze(0).cpu().numpy().transpose(1,2,0)
-        return Image.fromarray((res_img*255).astype(np.uint8))
+            res = self.model.test_generate(img,lbl)
+            imgs = torch.cat((imgs, res), 0)
+        save_image(Reverse_zero_center()(imgs), fp=os.path.join('./test/',"res.jpg"))
 
 if __name__ == '__main__':
-    D=Demo("checkpoint\\FPAGANS\\2024-05-17_12-56-32\\saved_parameters\\gepoch_5_iter_7500.pth")
-    img=Image.open("face1.jpg")
-    image = D.demo(img)
-    image.show()
+    D=Demo("checkpoint\\FPAGANS\\2024-05-17_12-56-32\\saved_parameters\\gepoch_5_iter_6500.pth")
+    img=Image.open("./test/face1.jpg")
+    D.demo(img)

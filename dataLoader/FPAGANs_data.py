@@ -16,7 +16,7 @@ class CACD(data.Dataset):
         full_one = np.ones((128,128),dtype=np.float32)
         for i in range(5):
             full_zero=np.zeros((128,128,5),dtype=np.float32)
-            full_zero[:,:,i] = full_one
+            full_zero[:, :, i] = full_one
             self.condition128.append(full_zero)
 
         self.condition64 = []

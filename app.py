@@ -8,7 +8,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-D=Demo("checkpoint\\FPAGANS\\2024-05-17_12-56-32\\saved_parameters\\gepoch_5_iter_7500.pth")
+D=Demo("checkpoint\\FPAGANS\\2024-05-17_12-56-32\\saved_parameters\\gepoch_5_iter_6500.pth")
 
 @app.route('/')
 def hello_world():
@@ -17,11 +17,10 @@ def hello_world():
 @app.route('/upload_file',methods=['POST'])
 def upload_file():
     img = request.files['img']
-    img.save("tmp.jpg")
-    img=Image.open("tmp.jpg").resize((400,400),Image.BILINEAR)
-    for i in range(5):
-        D.demo(img,i).resize((400,400),Image.BILINEAR).save("tmp%d.jpg"%i)
-    with open("tmp4.jpg", "rb") as f:
+    img.save("./test/tmp.jpg")
+    img=Image.open("./test/tmp.jpg")
+    D.demo(img)
+    with open("./test/res.jpg", "rb") as f:
         base64_data = base64.b64encode(f.read())
     return base64_data
 

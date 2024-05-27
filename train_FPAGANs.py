@@ -6,12 +6,10 @@ import argparse
 import logging
 from tqdm import tqdm
 from torchvision.utils import save_image
-#user import
 from dataLoader.FPAGANs_data import CACD
 from model.FPAGANs import FPAGANs
 from utils.io import check_dir, Img_to_zero_center,Reverse_zero_center
 from datetime import datetime
-from tensorboardX import SummaryWriter
 
 parser = argparse.ArgumentParser(description='train FPAGANs')
 TIMESTAMP = "{0:%Y-%m-%d_%H-%M-%S}".format(datetime.now())
@@ -38,13 +36,8 @@ parser.add_argument('--saved_model_folder', type=str,
 parser.add_argument('--saved_validation_folder', type=str,
                     help='the path of folder which stores the val img',
                     default='./checkpoint/FPAGANs/%s/validation/'%(TIMESTAMP))
-parser.add_argument('--tensorboard_log_folder', type=str,
-                    help='the path of folder which stores the tensorboard log',
-                    default='./checkpoint/FPAGANs/%s/tensorboard/'%(TIMESTAMP))
 
 args = parser.parse_args()
-
-writer = SummaryWriter(os.path.join(args.tensorboard_log_folder,TIMESTAMP))
 
 check_dir(args.checkpoint)
 check_dir(args.saved_model_folder)
@@ -89,8 +82,8 @@ def main():
     g_optim = model.g_optim
 
     for epoch in range(args.max_epoches):
-        for idx, (source_img_227,source_img_128,true_label_img,\
-               true_label_128,true_label_64,fake_label_64, true_label) in enumerate(train_loader, 1):
+        for idx, (source_img_227, source_img_128, true_label_img,\
+               true_label_128, true_label_64, fake_label_64, true_label) in enumerate(train_loader, 1):
 
             running_d_loss=None
             running_g_loss=None
@@ -120,9 +113,6 @@ def main():
                 d_loss.backward()
                 d_optim.step()
 
-            for name, param in model.discriminator.named_parameters():
-                writer.add_histogram("discriminator:%s"%name, param.clone().cpu().detach().numpy(), n_iter)
-
             for g_iter in range(args.g_iter):
                 g_optim.zero_grad()
                 model.train(
@@ -139,13 +129,8 @@ def main():
                 g_loss.backward()
                 g_optim.step()
 
-            for name, param in model.generator.named_parameters():
-                writer.add_histogram("generator:%s" % name, param.clone().cpu().detach().numpy(), n_iter)
-
             format_str = ('step %d/%d, g_loss = %.3f, d_loss = %.3f')
             logger.info(format_str % (idx, len(train_loader),running_g_loss,running_d_loss))
-
-            writer.add_scalars('data/loss', {'G_loss':running_g_loss,'D_loss':running_d_loss}, n_iter)
 
             if idx % args.save_interval == 0:
                 model.save_model(dir=args.saved_model_folder,
@@ -157,10 +142,9 @@ def main():
                 check_dir(save_dir)
                 for val_idx, (source_img_128, true_label_128) in enumerate(tqdm(test_loader)):
                     save_image(Reverse_zero_center()(source_img_128), fp=os.path.join(save_dir,"batch_%d_source.jpg"%(val_idx)))
-
                     for age in range(args.age_groups):
                         img = model.test_generate(source_img_128, true_label_128[age])
-                        save_image(Reverse_zero_center()(img), fp=os.path.join(save_dir,"batch_%d_age_group_%d.jpg"%(val_idx,age)))
+                        save_image(Reverse_zero_center()(img), fp=os.path.join(save_dir,"batch_%d_age_group_%d.jpg"%(val_idx, age)))
                 logger.info('validation image has been created!')
 
 if __name__ == '__main__':

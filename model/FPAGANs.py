@@ -66,17 +66,15 @@ class Generator(nn.Module):
         x = self.relu(self.bn2(self.conv2(x)))
         x = self.relu(self.bn3(self.conv3(x)))
         x = self.repeat_blocks(x)
-        x = self.deconv1(x)
-        x = self.relu(self.bn4(x))
-        x = self.deconv2(x)
-        x = self.relu(self.bn5(x))
+        x = self.relu(self.bn4(self.deconv1(x)))
+        x = self.relu(self.bn5(self.deconv2(x)))
         x = self.tanh(self.conv4(x))
         return x
 
 class FPAGANs:
-    def __init__(self,lr=0.01,age_classifier_path=None,gan_loss_weight=75,feature_loss_weight=0.5e-4,age_loss_weight=30, modelpath=None):
-        self.d_lr=lr
-        self.g_lr=lr
+    def __init__(self, lr=0.01, age_classifier_path=None, gan_loss_weight=75, feature_loss_weight=0.5e-4, age_loss_weight=30, modelpath=None):
+        self.d_lr = lr
+        self.g_lr = lr
 
         self.generator = Generator().cuda()
         self.discriminator = PatchDiscriminator().cuda()
@@ -98,8 +96,8 @@ class FPAGANs:
             load_params(self.generator, modelpath)
 
     def save_model(self, dir, filename):
-        torch.save(self.generator.state_dict(), os.path.join(dir, "g"+filename))
-        torch.save(self.discriminator.state_dict(), os.path.join(dir, "d"+filename))
+        torch.save(self.generator.state_dict(), os.path.join(dir, "g" + filename))
+        torch.save(self.discriminator.state_dict(), os.path.join(dir, "d" + filename))
 
     def test_generate(self, source_img_128, condition):
         self.generator.eval()
@@ -107,7 +105,7 @@ class FPAGANs:
             generate_image = self.generator(source_img_128, condition)
         return generate_image
 
-    def train(self,source_img_227,source_img_128,true_label_img,true_label_128,true_label_64,\
+    def train(self,source_img_227, source_img_128, true_label_img, true_label_128, true_label_64,\
                fake_label_64, age_label):
 
         ###################################gan_loss###############################
