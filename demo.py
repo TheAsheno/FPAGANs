@@ -90,5 +90,5 @@ class Demo:
 
 if __name__ == '__main__':
     D=Demo("checkpoint\\FPAGANS\\2024-05-17_12-56-32\\saved_parameters\\gepoch_5_iter_6500.pth")
-    img=Image.open("./test/face1.jpg")
+    img=Image.open("./test/face14.jpg")
     D.demo(img)

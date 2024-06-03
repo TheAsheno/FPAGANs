@@ -3,7 +3,6 @@ import torchvision
 import os
 import argparse
 import logging
-
 from tqdm import tqdm
 from dataLoader.AgeAlexNet_data import CACD
 from model.AgeAlexNet import AgeAlexNet

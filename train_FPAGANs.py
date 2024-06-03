@@ -52,7 +52,6 @@ stdout_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(messa
 file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
 logger.setLevel(logging.INFO)
 
-
 def main():
     logger.info("Start to train:\n arguments: %s" % str(args))
     transforms = torchvision.transforms.Compose([
@@ -87,7 +86,6 @@ def main():
 
             running_d_loss=None
             running_g_loss=None
-            n_iter = epoch * len(train_loader) + idx
 
             source_img_227=source_img_227.cuda()
             source_img_128=source_img_128.cuda()
